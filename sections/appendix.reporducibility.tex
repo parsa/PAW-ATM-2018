@@ -1,66 +1,286 @@
 \section{Artifact Description: [Paper Title]}
 
-Submission and reviewing guidelines, and methodology: \\
-{\small\em http://submissions.supercomputing.org/reproducibility}
+%Submission and reviewing guidelines, and methodology: \\
+%{\small\em http://submissions.supercomputing.org/reproducibility}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Abstract}
 
-{\em If a paper has no computational results and submits this appendix, the authors only need to complete this abstract subsection and mention that the paper has no computational results.  Other subsections can be removed.}
+%{\em If a paper has no computational results and submits this appendix, the authors only need to complete this abstract subsection and mention that the paper has no computational results.  Other subsections can be removed.}
+In this section we describe the configuration and environment needed to run our experiments. The experiments are run on SuperMIC\cite{smic_info} from 2 to 194 nodes. We present the steps to build the software on SuperMIC and repeat our experiments and how to gather the performance counter data.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Description}
 
 \subsubsection{Check-list (artifact meta information)}
 
-{\em Fill in whatever is applicable with some informal keywords and remove the rest}
+%{\em Fill in whatever is applicable with some informal keywords and remove the rest}
 
 {\small
 \begin{itemize}
-  \item {\bf Algorithm: }
-  \item {\bf Program: }
-  \item {\bf Compilation: }
-  \item {\bf Transformations: }
-  \item {\bf Binary: }
-  \item {\bf Data set: }
-  \item {\bf Run-time environment: }
-  \item {\bf Hardware: }
+  \item {\bf Program: OctoTiger}
+  \item {\bf Compilation: GCC 6.0}
+  \item {\bf Hardware: SuperMIC}
   \item {\bf Run-time state: }
-  \item {\bf Execution: }
-  \item {\bf Output: }
-  \item {\bf Experiment workflow: }
-  \item {\bf Experiment customization: }
-  \item {\bf Publicly available?: }
+  \item {\bf Output: Performance counter results in text}
+  \item {\bf Publicly available?: Yes}
 \end{itemize}
 }
 
 \subsubsection{How software can be obtained (if available)}
+HPX can be obtained from \url{https://github.com/STEllAR-GROUP/hpx}. OctoTiger can be downloaded from \url{https://github.com/STEllAR-GROUP/octotiger}.
 
-{\em Obligatory if the paper contains computational results.}
+%{\em Obligatory if the paper contains computational results.}
 
 \subsubsection{Hardware dependencies}
+Access to SuperMIC can be requested through XSEDE. See \url{https://portal.xsede.org/allocations/announcements} for more information.
 
 \subsubsection{Software dependencies}
+\label{software-dependencies}
+The following modules need to be loaded to build HPX and OctoTiger:
+\begin{itemize}
+\item{gcc/4.9.0}
+\item{mvapich2/2.0/INTEL-14.0.2}
+\item{hwloc/1.10.0/INTEL-14.0.2}
+\end{itemize}
 
-\subsubsection{Datasets}
+The following software need to be built from their source since the versions available on SuperMIC are too old:
+\begin{itemize}
+\item{CMake. The latest version of CMake can be downloaded from \url{https://cmake.org/download/}.}
+\item{Boost. It is available on \url{https://sourceforge.net/projects/boost/files/boost/1.61.0/}.}
+\item{Silo}
+\end{itemize}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+The restart file X.1260.chk needs to be downloaded from \url{http://www.nic.uoregon.edu/~khuck/octotiger-restart-files/X.1260.chk}
+
 \subsection{Installation}
+\begin{itemize}
+\item{HPX
 
-{\em Obligatory if the paper contains computational results.}
+\begin{lstlisting}
+cmake
+  -H<PATH_TO_HPX_CODE>
+  -B<PATH_TO_HPX_BUILD>
+  -DCMAKE_BUILD_TYPE=Release
+  -DCMAKE_CXX_FLAGS="-std=c++1y"
+  -DHPX_WITH_CXX11=True
+  -DCMAKE_C_COMPILER=gcc
+  -DCMAKE_CXX_COMPILER=g++
+  -DBOOST_ROOT=<PATH_TO_BOOST>
+  -DBoost_NO_SYSTEM_PATHS=True
+  -DHPX_WITH_MALLOC="custom"
+  -DHPX_WITH_PARCELPORT_MPI=True
+  -DHPX_WITH_PARCELPORT_TCP=False
+  -DHPX_WITH_PARCELPORT_IBVERBS=False
+  -DHPX_WITH_EXAMPLES=False
+cmake --build <PATH_TO_HPX_BUILD>
+\end{lstlisting}
+}
+
+\item{OctoTiger
+\begin{lstlisting}
+cmake
+  -H<PATH_TO_HPX_CODE>
+  -B<PATH_TO_HPX_BUILD>
+  -DHPX_DIR=<PATH_TO_HPX_BUILD/lib/cmake>
+cmake --build <PATH_TO_OCTOTIGER_BUILD>
+\end{lstlisting}
+}
+\end{itemize}
+
+%{\em Obligatory if the paper contains computational results.}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Experiment workflow}
+\begin{itemize}
+\item{Get a job from Torque for the appropriate number of nodes and ensure all required modules listed in section \ref{software-dependencies} are loaded.}
+\item{Run the OctoTiger binary with mpirun the following commands:
+\begin{lstlisting}
+cat $PBS_NODEFILE |
+  awk 'NR % 20 == 0' > node.list
+export HPX_NODEFILE=node.list
+export NPROCS=$(wc -l
+  $HPX_NODEFILE |gawk '//{print $1}')
+mpirun
+  -np $NPROCS
+  --machinefile $HPX_NODEFILE
+  ./octotiger
+  -t20
+  -Ngrids=100000
+  -Xscale=8.031372549
+  -Problem=dwd
+  -Max_level=11
+  -VariableOmega=0
+  -Restart=restart.chk
+  10
+  --hpx:threads 20
+  -Datadir=<DATA_LOCATION>
+  -ParallelSilo
+  --hpx:print-counter=
+    /agas{locality#*/total}/count/
+      allocate
+  --hpx:print-counter=
+    /agas{locality#*/total}/count/
+      bind
+  --hpx:print-counter=
+    /agas{locality#*/total}/count/
+      bind_gid
+  --hpx:print-counter=
+    /agas{locality#*/total}/count/
+      cache-evictions
+  --hpx:print-counter=
+    /agas{locality#*/total}/count/
+      cache-hits
+  --hpx:print-counter=
+    /agas{locality#*/total}/count/
+      cache-insertions
+  --hpx:print-counter=
+    /agas{locality#*/total}/count/
+      cache-misses
+  --hpx:print-counter=
+    /agas{locality#*/total}/count/
+      cache_erase_entry
+  --hpx:print-counter=
+    /agas{locality#*/total}/count/
+      cache_get_entry
+  --hpx:print-counter=
+    /agas{locality#*/total}/count/
+      cache_insert_entry
+  --hpx:print-counter=
+    /agas{locality#*/total}/count/
+      cache_update_entry
+  --hpx:print-counter=
+    /agas{locality#*/total}/count/
+      decrement_credit
+  --hpx:print-counter=
+    /agas{locality#*/total}/count/
+      increment_credit
+  --hpx:print-counter=
+    /agas{locality#*/total}/count/
+      resolve
+  --hpx:print-counter=
+    /agas{locality#*/total}/count/
+      resolve_gid
+  --hpx:print-counter=
+    /agas{locality#*/total}/count/
+      route
+  --hpx:print-counter=
+    /agas{locality#*/total}/count/
+      unbind
+  --hpx:print-counter=
+    /agas{locality#*/total}/count/
+      unbind_gid
+  --hpx:print-counter=
+    /agas{locality#*/total}/primary/
+      count
+  --hpx:print-counter=
+    /agas{locality#*/total}/primary/
+      time
+  --hpx:print-counter=
+    /agas{locality#*/total}/symbol/
+      count
+  --hpx:print-counter=
+    /agas{locality#*/total}/symbol/
+      time
+  --hpx:print-counter=
+    /agas{locality#*/total}/time/
+      allocate
+  --hpx:print-counter=
+    /agas{locality#*/total}/time/
+      bind
+  --hpx:print-counter=
+    /agas{locality#*/total}/time/
+      bind_gid
+  --hpx:print-counter=
+    /agas{locality#*/total}/time/
+      cache_erase_entry
+  --hpx:print-counter=
+    /agas{locality#*/total}/time/
+      cache_get_entry
+  --hpx:print-counter=
+    /agas{locality#*/total}/time/
+      cache_insert_entry
+  --hpx:print-counter=
+    /agas{locality#*/total}/time/
+      cache_update_entry
+  --hpx:print-counter=
+    /agas{locality#*/total}/time/
+      decrement_credit
+  --hpx:print-counter=
+    /agas{locality#*/total}/time/
+      increment_credit
+  --hpx:print-counter=
+    /agas{locality#*/total}/time/
+      resolve
+  --hpx:print-counter=
+    /agas{locality#*/total}/time/
+      resolve_gid
+  --hpx:print-counter=
+    /agas{locality#*/total}/time/
+      route
+  --hpx:print-counter=
+    /agas{locality#*/total}/time/
+      unbind
+  --hpx:print-counter=
+    /agas{locality#*/total}/time/
+      unbind_gid
+  --hpx:print-counter=
+    /agas{locality#0/total}/count/
+      bind_name
+  --hpx:print-counter=
+    /agas{locality#0/total}/count/
+      bind_prefix
+  --hpx:print-counter=
+    /agas{locality#0/total}/component/
+      count
+  --hpx:print-counter=
+    /agas{locality#0/total}/component/
+      time
+  --hpx:print-counter=
+    /agas{locality#0/total}/count/
+      free
+  --hpx:print-counter=
+    /agas{locality#0/total}/count/
+      localities
+  --hpx:print-counter=
+    /agas{locality#0/total}/count/
+      num_localities
+  --hpx:print-counter=
+    /agas{locality#0/total}/count/
+      num_localities_type
+  --hpx:print-counter=
+    /agas{locality#0/total}/count/
+      num_threads
+  --hpx:print-counter=
+    /agas{locality#0/total}/count/
+      resolve_id
+  --hpx:print-counter=
+    /agas{locality#0/total}/count/
+      resolve_locality
+  --hpx:print-counter=
+    /agas{locality#0/total}/count/
+      resolved_localities
+  --hpx:print-counter=
+    /agas{locality#0/total}/count/
+      unbind_name
+\end{lstlisting}
+}
+\item{Repeat the same experiment for 2 to 194 nodes.}
+\end{itemize}
 
-{\em Obligatory if the paper contains computational results.}
+%{\em Obligatory if the paper contains computational results.}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Evaluation and expected result}
 
-{\em Obligatory if the paper contains computational results.}
+The performance counters that contain "/count/" indicate the number of times an
+AGAS operation is invoked or the number of indicated object. The performance
+counters that contain "/time/" on the other hand indicate the total amount of
+time spent executing that AGAS operation. More information about performance
+counters can be viewed at
+\url{https://stellar-group.github.io/hpx/docs/html/hpx/manual/performance_counters.html}.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Experiment customization}
+%{\em Obligatory if the paper contains computational results.}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Notes}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\subsection{Notes}

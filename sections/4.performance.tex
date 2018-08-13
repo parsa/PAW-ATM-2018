@@ -2,16 +2,17 @@
 \label{performance}
 
 The main challenge of any HPC global addressing system, including AGAS, is to
-efficiently support the massive amounts of data tha applications use during
+efficiently support the massive amounts of data that applications use during
 execution. Our aim here, therefore, is to understand the efficiency of AGAS
 through measuring its performance of associated overheads.
-To study AGAS, we use OctoTiger\cite{kadam2017numerical,octotiger_repo} as our
+To study AGAS, we use OctoTiger\cite{kadam2017numerical,heller2017harnessing,octotiger_repo} as our
 application and run it on the cluster provided by the Center of Computation and
-Technology at Louisiana State University. In the rest of this section we
-present OctoTiger and the performance metrics we use to measure the overheads
-of AGAS. It has to be noted that any other application benchmark can be used in
-place of OctoTiger. However, developing an HPX implementation takes work and at
-this point, OctoTiger is the only available real world HPX application.
+Technology at Louisiana State University. It has to be noted that any other
+application benchmark can be used in place of OctoTiger. However, developing an
+HPX application takes work and at this point, OctoTiger is the only
+available real world HPX application. In the rest of this section we present
+OctoTiger and the performance metrics we use to measure the overheads
+of AGAS. 
 
 \subsection{OctoTiger}
 %\todo[inline, color=red!50]{What is it? Why did we choose it? What are the implications of this choice?}%
@@ -39,7 +40,7 @@ We run our experiments on SuperMIC, a hybrid Xeon/Xeon Phi cluster that
 comprises 360 compute nodes located at Louisiana State University. More
 details about the configuration of SuperMIC is included in Table
 \ref{tab:machines}. We run OctoTiger on SuperMIC from
-two nodes to 200 nodes only using the Xeon processors on each machine using
+two nodes to 194 nodes only using the Xeon processors on each machine using
 HPX 0.9\cite{hartmut_kaiser_2015_33656}.
 
 % Sample LLNCS table
@@ -62,29 +63,29 @@ HPX 0.9\cite{hartmut_kaiser_2015_33656}.
 %    \end{center}
 %\end{table}
 
-\begin{table*}
-  \centering
-  \caption{SuperMIC Configuration}
-  \label{tab:machines}
+\begin{table}
+    \caption{SuperMIC Configuration}
+    \centering
+    \label{tab:machines}
     \begin{tabular}{cl}  
-    \toprule
-    Nodes available  & 360                             \\
-    Architecture     & Ivy Bridge,                     \\
-                     & Knights Corner                  \\
-    Cores/Node       & $2 \times 10$ cores             \\
-    Processor        & Intel Xeon E5-2680 @ 2.8 GHz,   \\
-                     & Intel Xeon Phi 7120P @1.238 GHz \\
-    Memory           & 64 GB DDR3 @ 1,866 MHz          \\
-                     &                                 \\
-    Connection       & 56 Gbps Infinitband             \\
-    Operating System & Red Hat Enterprise Linux 6.8    \\
-    \bottomrule
+        \toprule
+        Nodes available  & 360                             \\
+        Architecture     & Ivy Bridge,                     \\
+                         & Knights Corner                  \\
+        Cores/Node       & $2 \times 10$ cores             \\
+        Processor        & Intel Xeon E5-2680 @ 2.8 GHz,   \\
+                         & Intel Xeon Phi 7120P @1.238 GHz \\
+        Memory           & 64 GB DDR3 @ 1,866 MHz          \\
+                         &                                 \\
+        Connection       & 56 Gbps Infinitband             \\
+        Operating System & Red Hat Enterprise Linux 6.8    \\
+        \bottomrule
     \end{tabular}
-\end{table*}
+\end{table}
 
 \begin{itemize}
 \item{Performance Metrics}:
-Every globally accessible object in HPX has a global id that AGAS manages and
+Every globally accessible object in HPX has a global ID that AGAS manages and
 resolves to local virtual addresses at runtime. However, address resolution at runtime is
 an overhead that consumes computational resources that application developers expect to be used by the
 applications rather than the runtime system. To quantify and study the overhead of AGAS, we look at the following
@@ -94,7 +95,7 @@ spent performing these operations.
 \item{Bind, Unbind, Object Lookup}:
 Bind and Unbind operations occur when a global object is created and deleted, 
 respectively. An object lookup operation takes place each time AGAS attempts 
-to resolve a global Id.
+to resolve a global ID.
 
 \item{Locality Lookup}:
 Each AGAS instance only knows about itself and locality 0. When an AGAS

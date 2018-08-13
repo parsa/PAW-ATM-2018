@@ -5,10 +5,10 @@ As mentioned before, the main objective of this study is to identify the AGAS
 operations that need performance improvement and to study the effects of strong
 scaling on AGAS. In this section, we present the results of this study.
 
-\begin{figure}[h]
+\begin{figure}[t]
     \centering
-    \caption{Total time spent to resolve GID calls while running OctoTiger on 32 to 200 nodes of SuperMIC with fixed problem size (Strong Scaling). Each (red) circle refers to the measured amount of time a locality has spent executing resolve GID calls. Higher intensities indicate overlapping measurements. The line highlights locality 0's behavior.}
     \includegraphics[width=.54\textwidth,height=\textheight,keepaspectratio]{graphs/octotiger_resolve_gid_time}
+    \caption{Total time spent to resolve GID calls while running OctoTiger on 32 to 194 nodes of SuperMIC with fixed problem size (Strong Scaling). Each (red) circle refers to the measured amount of time a locality has spent executing resolve GID calls. Higher intensities indicate overlapping measurements. The line highlights locality 0's behavior. X axis starts from 2 to keep consistency with the X axis on other plots.}
     \label{fig:octgr_strong_resolve_gid_time}
 \end{figure}
 
@@ -41,21 +41,23 @@ usually contains a serialized task and its arguments. Parcel routing is the
 operation in which the a parcel is sent to a different locality. Fig.
 \ref{fig:octgr_strong_route_time} shows that locality 0 ends up handling a
 disproportionate and increasing number of routing requests regardless of the
-application data access pattern and problem size and hence, the routing operation
-is a candidate for optimization.
+change in data access pattern and size due to scaling. Therfore, the routing
+operation is a candidate for optimization.
 
-\begin{figure}[h]
+\begin{figure}[t]
     \centering
-    \caption{Total time spent to route calls while running OctoTiger on 2 to 200 nodes of SuperMIC with fixed problem size (Strong Scaling). Each (red) circle refers to the measured amount of time a locality has spent executing parcel route calls. Higher intensities indicate overlapping measurements. The line highlights locality 0's behavior.}
     \includegraphics[width=.54\textwidth,height=\textheight,keepaspectratio]{graphs/octotiger_route_time}
+    \caption{Total time spent to route calls while running OctoTiger on 2 to 194 nodes of SuperMIC with fixed problem size (Strong Scaling). Each (red) circle refers to the measured amount of time a locality has spent executing parcel route calls. Higher intensities indicate overlapping measurements. The line highlights locality 0's behavior.}
     \label{fig:octgr_strong_route_time}
 \end{figure}
+
 % Garbage collection not done much in OctoTiger
 For a garbage collection system to function the HPX runtime system must be able
 to determine if an object is currently being used. HPX uses reference counting
 for local references and a credit-based system to keep track of global
 references. The operations that lend and return credits are called decrement
 credit and increment credit, respectively.
+
 %One issue that affects our
 %experiment is that OctoTiger uses unmanaged objects and therefore AGAS garbage
 %collection is not heavily relied upon and therefore the amount of time spent on
@@ -72,29 +74,54 @@ behavior is likely to be different for applications that do not have as many
 global references per each object and therefore decrement\_credit is a good
 candidate for further optimizations.
 
-\begin{figure}[h]
+\begin{figure}[t]
     \centering
-    \caption{Total time spent to decrement calls while running OctoTiger on 2 to 200 nodes of SuperMIC with fixed problem size (Strong Scaling). Each (red) circle refers to the measured amount of time a locality has spent executing resolve GID calls. Higher intensities indicate overlapping measurements. The line highlights locality 0's behavior.}
     \includegraphics[width=.54\textwidth,height=\textheight,keepaspectratio]{graphs/octotiger_decrement_credit_time}
+    \caption{Total time spent to decrement credit calls while running OctoTiger on 2 to 194 nodes of SuperMIC with fixed problem size (Strong Scaling). Each (red) circle refers to the measured amount of time a locality has spent executing resolve GID calls. Higher intensities indicate overlapping measurements. The line highlights locality 0's behavior.}
     \label{fig:octgr_strong_decr_cred}
 \end{figure}
+
+% We didn't collect all execution times
+% The values are small
+Table \ref{tab:exec-percent} shows the percentage of execution time that is
+spent on maintaining AGAS and the percentage of execution time that is spent on the three most expensive AGAS operations. It is worth mentioning that we did not plan to
+collect execution times for all runs and incidentally collected these
+values, but we nevertheless expect the values to be similar for other node
+configurations that are not in the table. Based on these values we observe that
+AGAS takes only a small amount of execution time.
+
+\begin{table*}[t]
+    \caption{AGAS overhead in total and for the most expensive AGAS operations as percentages of execution time for 4 node configurations.}
+    \centering
+    \label{tab:exec-percent}
+    \begin{tabular}{ccccc}
+        \toprule
+        Number of localities & All AGAS operations in total & Decrement credit operations & Resolve GID operations & Parcel routing operations \\
+        \hline
+        2   & 0.0031 & 0.0016 & 0.0009 & 0.0001 \\
+        16  & 0.0031 & 0.0015 & 0.0011 & 0.0001 \\
+        88  & 0.0032 & 0.0015 & 0.0010 & 0.0003 \\
+        194 & 0.0051 & 0.0017 & 0.0011 & 0.0020 \\
+        \bottomrule
+    \end{tabular}
+\end{table*}
 
 %\begin{figure}
 %    \begin{subfigure}[b]{0.3\textwidth}
 %        \centering
-%        \caption{Total time spent to resolve GID calls while running OctoTiger on 2 to 200 nodes of SuperMIC with fixed problem size (Strong Scaling)}
+%        \caption{Total time spent to resolve GID calls while running OctoTiger on 2 to 194 nodes of SuperMIC with fixed problem size (Strong Scaling)}
 %        \includegraphics[width=\textwidth,keepaspectratio]{graphs/octotiger_resolve_gid_time}
 %        \label{fig:octgr_strong_resolve_gid_time}
 %    \end{subfigure}%
 %    \hfill
 %    \begin{subfigure}[b]{0.3\textwidth}
-%        \caption{Total time spent to route calls while running OctoTiger on 2 to 200 nodes of SuperMIC with fixed problem size (Strong Scaling)}
+%        \caption{Total time spent to route calls while running OctoTiger on 2 to 194 nodes of SuperMIC with fixed problem size (Strong Scaling)}
 %        \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{graphs/octotiger_route_time}
 %        \label{fig:octgr_strong_route_time}
 %    \end{subfigure}%
 %    \hfill
 %    \begin{subfigure}[b]{0.3\textwidth}
-%        \caption{Total time spent to decrement calls while running OctoTiger on 2 to 200 nodes of SuperMIC with fixed problem size (Strong Scaling)}
+%        \caption{Total time spent to decrement credit calls while running OctoTiger on 2 to 194 nodes of SuperMIC with fixed problem size (Strong Scaling)}
 %        \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{graphs/octotiger_decrement_credit_time}
 %        \label{fig:octgr_strong_decr_cred}
 %    \end{subfigure}%

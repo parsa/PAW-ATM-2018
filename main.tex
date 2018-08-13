@@ -11,9 +11,11 @@
 % acmart is available at https://www.acm.org/publications/proceedings-template
 %\documentclass[sigconf,twocolumn]{acmart}
 % IEEETrans is available at https://www.ieee.org/conferences_events/conferences/publishing/templates.html
-\documentclass[conference]{IEEEtran}
 
-\special{papersize=8.5in,11in}
+% IEEEtrans Modes: draft, draftcls, draftclsnofoot, final
+\documentclass[10pt,conference,final]{IEEEtran}
+
+%\special{papersize=8.5in,11in}
 
 \IEEEoverridecommandlockouts
 % The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
@@ -30,6 +32,8 @@
 \usepackage{graphicx}
 \usepackage{caption}
 \usepackage{subcaption}
+\usepackage{listings}
+\usepackage{hyperref}
 %
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
@@ -41,21 +45,13 @@
 
 \author{\IEEEauthorblockN{1\textsuperscript{st} Parsa Amini}
 \IEEEauthorblockA{\textit{Louisiana State University} \\
-\textit{Louisiana State University}\\
 Baton Rouge, USA \\
 parsa@cct.lsu.edu}
 \and
 \IEEEauthorblockN{2\textsuperscript{nd} Hartmut Kaiser}
 \IEEEauthorblockA{\textit{Louisiana State University} \\
-\textit{Louisiana State University}\\
 Baton Rouge, USA \\
 hkaiser@cct.lsu.edu}
-\and
-\IEEEauthorblockN{3\textsuperscript{rd} Jeanine Cook}
-\IEEEauthorblockA{\textit{Sandia National Labs} \\
-\textit{Sandia National Labs}\\
-Albuquerque, USA \\
-jeacook@sandia.gov}
 }
 
 \maketitle

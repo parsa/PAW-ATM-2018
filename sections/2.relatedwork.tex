@@ -1,8 +1,6 @@
 \section{Related Work}
 \label{related_work}
 
-\todo{You need a section on background of global address spaces, why they are needed, how do they work? Not everyone knows this.}
-
 In recent years, there has been a significant increase in utilization of
 heterogeneous clusters that use GPUs and MICs in addition to
 CPUs\cite{Lena2014,Yang2011266,Potluri2014,Sidelnik2011}. One approach to
@@ -17,10 +15,12 @@ separately manage communication and computation while maintaining portability
 between various cluster configurations and providing access to heterogeneous
 computing resources\cite{P0234R0}.
 
+\todo{You need a section on background of global address spaces, why they are needed, how do they work? Not everyone knows this.}
+
 Most studies on distributed runtime systems do not include quantitative
 analysis of the performance of their global address space system but present
 the overall performance of applications using the respective model or
 implementation. However, amongst the runtime systems mentioned only HPX has a
-ubiquitous address system that is present during run time. This unique property
+ubiquitous address system that is present during runtime. This unique property
 calls for a closer look into HPX's Active Global Address Space system behavior
 and performance and is the motivation behind this study.

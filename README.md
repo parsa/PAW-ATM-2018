@@ -11,7 +11,7 @@ Introduces AGAS and demonstrates a method to evaluate its performance.
 * SC18 - PAW-ATM: Parallel Applications Workshop - Alternatives to MPI
     * https://sc18.supercomputing.org/presentation/?id=wksp108&sess=sess144
     * http://sourceryinstitute.github.io/PAW/
-* Reason: This paper presents performance. ~~Suggestions are welcome.~~
+* Reason: This paper presents performance. Suggestions are welcome.
 
 ## What is/are the experiments, what data is collected, what information is presented?
 
@@ -22,7 +22,7 @@ Introduces AGAS and demonstrates a method to evaluate its performance.
 
 ## What is the *current* status of this paper?
 
-Not submitted yet.
+Work in progress.
 
 # Outline
 

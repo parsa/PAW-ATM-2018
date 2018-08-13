@@ -5,52 +5,35 @@ This section provides an overview of the implementation of the Active Global
 Address Space (AGAS) in HPX runtime system.
 
 AGAS is a global memory addressing system that is designed to
-handle various memory configurations ranging from an single small embedded
-machine running a specialized operating system to a cluster composed of
-a large number of nodes with heterogeneous computing resources. Fig.
+handle various memory configurations ranging from those implemented in single small
+machines to those typically found in a cluster composed of a large number of
+nodes with heterogeneous computing resources. AGAS is designed such that
+specific memory configuration characteristics are handled by the programmer
+through the API. Fig.
 \ref{fig:agas_struct} illustrates AGAS's role in HPX. Typically, 
 each part of the distributed AGAS service is hosted on a separate node of a
 cluster. AGAS consists of several subsystems that are depicted in Fig.
 \ref{fig:agas_intern} and are the following:
 
-\begin{figure}[h]
+\begin{figure}[t]
     \centering
-    \caption{AGAS provides an abstraction layer on top of virtual addresses local to each locality. Global objects are shown as black stars and gray stars indicate references to global objects. Each reference is connected to global objects by an arrow.}
     \includegraphics[width=.49\textwidth,height=\textheight,keepaspectratio]{illustrations/agas_struct}
+    \caption{AGAS provides an abstraction layer on top of virtual addresses local to each locality. Global objects are shown as black stars and gray stars indicate references to global objects. Each reference is connected to global objects by an arrow.}
     \label{fig:agas_struct}
 \end{figure}
-
-\begin{figure}
+\begin{figure}[t]
     \centering
-    \begin{subfigure}{0.4\textwidth}
-        \includegraphics[width=\textwidth]{illustrations/reference_counting_1}
-        \caption{}
-    \end{subfigure}
-    \vspace{1em}
-    \begin{subfigure}{0.4\textwidth}
-        \includegraphics[width=\textwidth]{illustrations/reference_counting_2}
-        \caption{}
-    \end{subfigure}
-    \vspace{1em}
-    \begin{subfigure}{0.4\textwidth}
-        \includegraphics[width=\textwidth]{illustrations/reference_counting_3}
-        \caption{}
-    \end{subfigure}
-    \vspace{1em}
-    \begin{subfigure}{0.4\textwidth}
-        \includegraphics[width=\textwidth]{illustrations/reference_counting_4}
-        \caption{}
-    \end{subfigure}
-    \caption{}
-    
+    \includegraphics[width=.49\textwidth,height=\textheight,keepaspectratio]{illustrations/agas_interaction}
+    \caption{When an HPX thread accesses a global object, AGAS determines if the object can be accessed locally. If the object is on a different locality the HPX thread is serialized and given to the parcelport. The parcelport unserializes the task and hands it to the thread manager for execution.}
+    \label{fig:agas_interaction}
 \end{figure}
 
 %\begin{figure*}[t!]
 %    \centering
 %    \begin{subfigure}[t]{.5/\textwidth}
 %        \centering
-%        \caption{}
 %        \includegraphics[width=.49\textwidth,height=\textheight,keepaspectratio]{illustrations/reference_counting_1}
+%        \caption{}
 %    \end{subfigure}
 %    \label{fig:agas_ref_count_1}
 %\end{figure*}
@@ -80,7 +63,7 @@ cluster. AGAS consists of several subsystems that are depicted in Fig.
 		performance counter data.}
     \item{AGAS Cache:
 		AGAS cache stores mapping between the most recently used global
-		addresses to localities and local virtual addresses. If a task requires
+		addresses to localities where those object reside and local virtual addresses. If a task requires
 		an object that does not live on the same locality then the task is sent
 		to the locality where the object currently is. However, in order to do
 		so, AGAS has to determine the current location of the queried object.
@@ -106,31 +89,55 @@ cluster. AGAS consists of several subsystems that are depicted in Fig.
         a credit-based scheme for remote references. The local counter is
         updated when a new reference is created and when a reference goes out
         of scope on the same locality. As for remote references, the credit
-        system works as follows:}
+        system works as demonstrated in Fig. \ref{fig:agas_credit}}
 
-    \begin{itemize}
-        \item{An object is created, AGAS sets the object's credit to a large
-              number.}
-        \item{When an object is referenced by another locality the object's
-              credit is split in half and a copy of the reference is kept at both
-              localities, and a flag is set on the original reference to
-              indicate that the object is referenced globally.}
-        \item{When a copy runs out of credit, it will ask the lender AGAS
-              instance for more. If the original reference itself does not have
-              enough credit, the AGAS instance responsible for that reference
-              will grant it more credits.}
-        \item{When a reference goes out of scope AGAS returns all borrowed
-              credits to the original reference.}
-        \item{If there are no local references and all credits have been
-              returned then AGAS can remove the object from memory during garbage
-              collection.}
-    \end{itemize}
+        \begin{figure*}[t]
+            \centering
+            \begin{subfigure}[t]{0.49\textwidth}
+                \includegraphics[width=\textwidth]{illustrations/reference_counting_1}
+                \caption{An object is created. AGAS sets the object's credit to a large
+                  number.}
+                \label{fig:agas_credit_1}
+            \end{subfigure}
+            \vspace{2em}
+            \hfill
+            \begin{subfigure}[t]{0.49\textwidth}
+                \includegraphics[width=\textwidth]{illustrations/reference_counting_2}
+                \caption{A global object referenced by two local copies of the GID. Credit is not affected by local copies.}
+                \label{fig:agas_credit_2}
+            \end{subfigure}
+            \begin{subfigure}[t]{0.49\textwidth}
+                \includegraphics[width=\textwidth]{illustrations/reference_counting_3}
+                \caption{When an object is referenced by another locality the object's
+                  credit is split in half and a copy of the reference is kept at both
+                  localities, and a flag is set on the original reference to
+                  indicate that the object is referenced globally. When a copy
+                  runs out of credit, it will ask the lender AGAS instance (the
+                  locality where the reference is located) for more. If the
+                  original reference itself does not have enough credit, the
+                  AGAS instance responsible for that reference (where the
+                  object resides) will grant it more credit.
+                }
+                \label{fig:agas_credit_3}
+            \end{subfigure}
+            \hfill
+            \begin{subfigure}[t]{0.49\textwidth}
+                \includegraphics[width=\textwidth]{illustrations/reference_counting_4}
+                \caption{When a reference goes out of scope AGAS returns all borrowed
+                  credits to the original reference. If there are no local references and all credits have been
+                  returned then AGAS can remove the object from memory during garbage
+                  collection.}
+                \label{fig:agas_credit_4}
+            \end{subfigure}
+            \caption{AGAS credit system tracks global references. When a global reference goes out of scope all of its credit is returned to the lender. When there are no local or global references the memory allocated by the object can be freed by the garbage collector.}
+            \label{fig:agas_credit}
+        \end{figure*}
 \end{enumerate}
 
-\begin{figure}[h]
+\begin{figure}[t]
     \centering
-    \caption{The four namespaces inside AGAS. Primary namespace on each AGAS instance contains GID to local address mappings. Locality namespace holds information about all AGAS instances. Component namespace tracks bulk memory allocations dedicated to types. Symbolic namespace contains mappings between GIDs and special strings that can be used for various purposes such as facilitating the collection of data about application execution.}
     \includegraphics[width=.47\textwidth,height=\textheight,keepaspectratio]{illustrations/agas_intern}
+    \caption{The four namespaces inside AGAS. Primary namespace on each AGAS instance contains GID to local address mappings. Locality namespace holds information about all AGAS instances. Component namespace tracks bulk memory allocations dedicated to types. Symbolic namespace contains mappings between GIDs and special strings that can be used for various purposes such as facilitating the collection of data about application execution.}
     \label{fig:agas_intern}
 \end{figure}
 
