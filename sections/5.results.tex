@@ -7,9 +7,8 @@ scaling on AGAS. In this section, we present the results of this study.
 
 \begin{figure}[h]
     \centering
-    \vspace{2.5cm}
-    \caption{Total time spent to resolve GID calls while running OctoTiger on 2 to 200 nodes of SuperMIC with fixed problem size (Strong Scaling). Each (red) circle refers to the measured amount of time a locality has spent executing resolve GID calls. Higher intensities indicate overlapping measurements. The line highlights locality 0's behavior.}
-    \includegraphics[width=.67\textwidth,height=\textheight,keepaspectratio]{graphs/octotiger_resolve_gid_time}
+    \caption{Total time spent to resolve GID calls while running OctoTiger on 32 to 200 nodes of SuperMIC with fixed problem size (Strong Scaling). Each (red) circle refers to the measured amount of time a locality has spent executing resolve GID calls. Higher intensities indicate overlapping measurements. The line highlights locality 0's behavior.}
+    \includegraphics[width=.54\textwidth,height=\textheight,keepaspectratio]{graphs/octotiger_resolve_gid_time}
     \label{fig:octgr_strong_resolve_gid_time}
 \end{figure}
 
@@ -18,19 +17,19 @@ scientists. In case of AGAS, ideally we expect the number of specific
 operations and the amount of time spent to perform them to be similar. Address
 resolution is one of the main functions of AGAS that translates a HPX GID to
 the actual virtual address on a machine. Its operation is complicated if the
-object is not currently located on the locality address resolution is taking
+object is not currently located on the locality that address resolution is taking
 place and in such case AGAS tries to determine which locality the object
 currently lives on, serialize the task that asked to access the foreign GID in
-an HPX parcel, and send it to the locality object is living in. If an AGAS
+an HPX parcel, and send it to the locality the object is living in. If an AGAS
 instance has no knowledge of the locality that is holding an object then it
-takes advantage of the fact that a locality an object is created on stays
+takes advantage of the fact that a locality on which an object is created stays
 responsible for it during the object's entire lifetime and uses the metadata in
-the GID to determine the locality the object was originially created on and
+the GID to determine the locality on which the object was originally created and
 sends the query there. Fig. \ref{fig:octgr_strong_resolve_gid_time} shows the
-amount of time GID resolution takes while running and OctoTiger. By looking at
-the graph we notice that while the the amount of work performed by each
+amount of time GID resolution takes while running OctoTiger. By looking at
+the graph we notice that while the amount of work performed by each
 locality is relatively similar up to 146 nodes, locality 0 starts to perform
-more work that other localities. This may indicate that most objects globally
+more work than other localities. This may indicate that most objects globally
 referenced were created on locality 0 and it requires further investigation to
 determine if this effect is caused by application behavior, non-optimal data
 distribution, or HPX itself.
@@ -38,18 +37,17 @@ distribution, or HPX itself.
 
 Parcels are the basic communication block in HPX. Parcels are active messages
 that trigger an operation on the target AGAS instance that opens them and
-usually contain a serialized task and its arguments. Parcel routing is the
+usually contains a serialized task and its arguments. Parcel routing is the
 operation in which the a parcel is sent to a different locality. Fig.
 \ref{fig:octgr_strong_route_time} shows that locality 0 ends up handling a
 disproportionate and increasing number of routing requests regardless of the
-application profile and problem size and hence, designate the routing operation
-as candidate for optimization.
+application data access pattern and problem size and hence, the routing operation
+is a candidate for optimization.
 
 \begin{figure}[h]
     \centering
-    \vspace{2.5cm}
-    \caption{Total time spent in route calls while running OctoTiger on 2 to 200 nodes of SuperMIC with fixed problem size (Strong Scaling). Each (red) circle refers to measured amount of time a locality has spent executing resolve GID calls. Higher intensities indicate overlapping measurements. The line highlights locality 0's behavior.}
-    \includegraphics[width=.67\textwidth,height=\textheight,keepaspectratio]{graphs/octotiger_route_time}
+    \caption{Total time spent to route calls while running OctoTiger on 2 to 200 nodes of SuperMIC with fixed problem size (Strong Scaling). Each (red) circle refers to the measured amount of time a locality has spent executing parcel route calls. Higher intensities indicate overlapping measurements. The line highlights locality 0's behavior.}
+    \includegraphics[width=.54\textwidth,height=\textheight,keepaspectratio]{graphs/octotiger_route_time}
     \label{fig:octgr_strong_route_time}
 \end{figure}
 % Garbage collection not done much in OctoTiger
@@ -66,7 +64,7 @@ credit and increment credit, respectively.
 %limited usage of the operation still enables us to observe the changes in
 %decrement credit's behavior as the number of nodes increase.
 Fig \ref{fig:octgr_strong_decr_cred} depicts the behavior of decrement\_credit
-calls taken place while running OctoTiger with the same number of objects as
+calls that take place while running OctoTiger with the same number of objects as
 the number of nodes are increased. This figure shows that a
 linear increase in number of objects results in an exponential growth
 in the amount of time spent on managing global references. Although this
@@ -76,28 +74,27 @@ candidate for further optimizations.
 
 \begin{figure}[h]
     \centering
-    \vspace{2.5cm}
-    \caption{Total time spent in decrement calls while running OctoTiger on 2 to 200 nodes of SuperMIC with fixed problem size (Strong Scaling). Each (red) circle refers to measured amount of time a locality has spent executing resolve GID calls. Higher intensities indicate overlapping measurements. The line highlights locality 0's behavior.}
-    \includegraphics[width=.67\textwidth,height=\textheight,keepaspectratio]{graphs/octotiger_decrement_credit_time}
+    \caption{Total time spent to decrement calls while running OctoTiger on 2 to 200 nodes of SuperMIC with fixed problem size (Strong Scaling). Each (red) circle refers to the measured amount of time a locality has spent executing resolve GID calls. Higher intensities indicate overlapping measurements. The line highlights locality 0's behavior.}
+    \includegraphics[width=.54\textwidth,height=\textheight,keepaspectratio]{graphs/octotiger_decrement_credit_time}
     \label{fig:octgr_strong_decr_cred}
 \end{figure}
 
 %\begin{figure}
 %    \begin{subfigure}[b]{0.3\textwidth}
 %        \centering
-%        \caption{Total time spent in resolve GID calls while running OctoTiger on 2 to 200 nodes of SuperMIC with fixed problem size (Strong Scaling)}
+%        \caption{Total time spent to resolve GID calls while running OctoTiger on 2 to 200 nodes of SuperMIC with fixed problem size (Strong Scaling)}
 %        \includegraphics[width=\textwidth,keepaspectratio]{graphs/octotiger_resolve_gid_time}
 %        \label{fig:octgr_strong_resolve_gid_time}
 %    \end{subfigure}%
 %    \hfill
 %    \begin{subfigure}[b]{0.3\textwidth}
-%        \caption{Total time spent in route calls while running OctoTiger on 2 to 200 nodes of SuperMIC with fixed problem size (Strong Scaling)}
+%        \caption{Total time spent to route calls while running OctoTiger on 2 to 200 nodes of SuperMIC with fixed problem size (Strong Scaling)}
 %        \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{graphs/octotiger_route_time}
 %        \label{fig:octgr_strong_route_time}
 %    \end{subfigure}%
 %    \hfill
 %    \begin{subfigure}[b]{0.3\textwidth}
-%        \caption{Total time spent in decrement calls while running OctoTiger on 2 to 200 nodes of SuperMIC with fixed problem size (Strong Scaling)}
+%        \caption{Total time spent to decrement calls while running OctoTiger on 2 to 200 nodes of SuperMIC with fixed problem size (Strong Scaling)}
 %        \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{graphs/octotiger_decrement_credit_time}
 %        \label{fig:octgr_strong_decr_cred}
 %    \end{subfigure}%

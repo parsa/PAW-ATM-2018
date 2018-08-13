@@ -13,26 +13,29 @@
 %Should I mention there's an idea to put AGAS on hardware in the future?
 %}
 
+\todo{Terrible sentence. Rewrite. Should probably be 2 or 3 sentences}
 In this work we introduce AGAS, its subsystems, and a method to study how the
-amount of time that is spent executing AGAS code, an overhead that does not
-exist in PGAS systems that statically resolve global references during
-compilation, is affected as the number of nodes increase.
+amount of time that is spent executing AGAS code. This is an overhead that does
+not exist in PGAS systems that statically resolve global references during
+compilation. We observe how AGAS's most expensive operations are affected as
+the number of nodes increase.
 
 To study AGAS's behavior we chose a multiphysics AMR application called
 OctoTiger that generates and works with a significant number of objects. We
-identify the performance metrics that reveal AGAS's performance and used the
+identify the performance metrics that expose AGAS's performance and use the
 corresponding counters in HPX's Performance Counter framework to collect
 performance data from our strong scaling experiments.
 
-Our observations show that in the cases of three basic AGAS operations, resolve
+\todo{Huh? So you fixed this problem? If you addressed the problems exposed through this work, this should be presented in the results section maybe under a resolution heading. Plots experiments showing if fixed should also be included. Doesn't belong in conclusion.}
+Our observations show that in the cases of the three most expensive AGAS operations, resolve
 GID, route, and decrement credit, the AGAS instance on locality 0 performs an
 increasing amount work as the problem is strongly scaled. Fig.
 \ref{fig:octgr_strong_route_time} shows parcel routing as the operation that is
 affected the most with an aggregated sum of $722$ milliseconds (0.0016\% of
+\todo{Hardly a bottleneck. Explain.}
 execution time) spent on routing parcels by AGAS-invoked tasks on locality 0 on
 200 nodes. Using our methods we were able to identify these issues which pose possible
-performance bottlenecks that are being investigated and preliminary results
-appear to show that this scaling issue has been addressed. Inclusion of a copy
+performance bottlenecks that will be investigated and reported in future work. Inclusion of a copy
 of the locality namespace to each locality's AGAS cache in the current version
 of HPX is one such optimization that reduces traffic forwarding to locality 0
 due to not knowing the endpoint address for a locality.

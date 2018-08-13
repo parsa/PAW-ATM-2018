@@ -2,7 +2,7 @@
 Global address space systems attempt to boost productivity and simplify the
 application development cycle of distributed applications by providing a
 ubiquitous abstraction layer over memory spaces that are provided and managed
-by the operating system on each computer. SPMD-style (Single Program Multiple
+by the operating system on each node in a large-scale system. SPMD-style (Single Program Multiple
 Data) Partitioned Global Address Space designs eliminate this layer during
 compilation to avoid the complexity of resolving global addresses at runtime at
 the cost of limiting productivity and imposing limitations on the code, while
@@ -21,6 +21,8 @@ memory partitions while maximizing data locality. Several Partitioned Global
 Address Space systems (PGAS) \cite{pgasorg} try to address these needs by
 providing control over data distribution and facilitating data accesses across
 processes and machines. However, initial data placement alone is not sufficient
+%\todo{What does AGAS enable? Reduced data movement. Reduced latency because an access to a non-local object is faster than accessing memory? Why should the reader care about AGAS?}
+%\todo{AGAS should be more strongly motivated. How do you know that scaling impared applications are impared by poor data locality}
 to address more complex issues such as load balancing applications that run on heterogeneous clusters or applications
 that become scaling impaired over time due to increasing load imbalance such
 as adaptive mesh refinement (AMR), dynamic graph applications, and partial
@@ -28,16 +30,22 @@ differential equation (PDE) solvers\cite{5364511,Anderson2011a,Dekate2011}.
 Active Global Address Space (AGAS) is a system that tries to address
 performance impaired applications. AGAS was initially proposed for the ParalleX
 programming model\cite{5364511} and implemented in HPX. It adds an abstraction
-layer on top of local objects on each computing node by mapping local virtual
+layer on top of local objects on each compute node by mapping local virtual
 addresses to a global address and ensuring that global addresses are valid even
-if the object it refers to is migrated to a different physical location. This
-abstraction layer needs to execute code to resolve and maintain the references
-and takes a portion of the execution time.
+if the object it refers to is migrated to a different physical location. AGAS
+enables applications to perform load balancing at runtime by using data
+migration.  AGAS also reduces data movement by using active messages. Active
+messages significantly reduce the need for data movement by moving tasks to
+where the data is instead of moving the data to where work is. 
+%This enables AGAS to provide data migration for load balancing performance impaired applications.
+However, AGAS needs to execute code to resolve and maintain the references and
+takes a portion of the execution time. \todo{Talk about reducing the impact of
+AGAS overhead}
 
 
 Assessing the overheads caused by AGAS is the main objective of this paper. We
 address this objective by developing a system that uses measurement data from
-AGAS and applies it to identify AGAS functions that exhibit poor scaling
+AGAS and apply it to identify AGAS functions that exhibit poor scaling
 behavior in HPX 0.9. In the rest of this work, we discuss other pertinent
 research in section \ref{related_work}, present a general overview of AGAS
 functionality in section \ref{agas}, explain the criteria based on which the

@@ -5,8 +5,8 @@ This section provides an overview of the implementation of the Active Global
 Address Space (AGAS) in HPX runtime system.
 
 AGAS is a global memory addressing system that is designed to
-handle various memory configurations ranging from a single small embedded
-machine running a specialized operating system to computer clusters composed of
+handle various memory configurations ranging from an single small embedded
+machine running a specialized operating system to a cluster composed of
 a large number of nodes with heterogeneous computing resources. Fig.
 \ref{fig:agas_struct} illustrates AGAS's role in HPX. Typically, 
 each part of the distributed AGAS service is hosted on a separate node of a
@@ -15,11 +15,45 @@ cluster. AGAS consists of several subsystems that are depicted in Fig.
 
 \begin{figure}[h]
     \centering
-    \vspace{2.5cm}
     \caption{AGAS provides an abstraction layer on top of virtual addresses local to each locality. Global objects are shown as black stars and gray stars indicate references to global objects. Each reference is connected to global objects by an arrow.}
-    \includegraphics[width=.97\textwidth,height=\textheight,keepaspectratio]{illustrations/agas_struct}
+    \includegraphics[width=.49\textwidth,height=\textheight,keepaspectratio]{illustrations/agas_struct}
     \label{fig:agas_struct}
 \end{figure}
+
+\begin{figure}
+    \centering
+    \begin{subfigure}{0.4\textwidth}
+        \includegraphics[width=\textwidth]{illustrations/reference_counting_1}
+        \caption{}
+    \end{subfigure}
+    \vspace{1em}
+    \begin{subfigure}{0.4\textwidth}
+        \includegraphics[width=\textwidth]{illustrations/reference_counting_2}
+        \caption{}
+    \end{subfigure}
+    \vspace{1em}
+    \begin{subfigure}{0.4\textwidth}
+        \includegraphics[width=\textwidth]{illustrations/reference_counting_3}
+        \caption{}
+    \end{subfigure}
+    \vspace{1em}
+    \begin{subfigure}{0.4\textwidth}
+        \includegraphics[width=\textwidth]{illustrations/reference_counting_4}
+        \caption{}
+    \end{subfigure}
+    \caption{}
+    
+\end{figure}
+
+%\begin{figure*}[t!]
+%    \centering
+%    \begin{subfigure}[t]{.5/\textwidth}
+%        \centering
+%        \caption{}
+%        \includegraphics[width=.49\textwidth,height=\textheight,keepaspectratio]{illustrations/reference_counting_1}
+%    \end{subfigure}
+%    \label{fig:agas_ref_count_1}
+%\end{figure*}
 
 \begin{enumerate}
     \item{Primary Namespace:
@@ -95,9 +129,8 @@ cluster. AGAS consists of several subsystems that are depicted in Fig.
 
 \begin{figure}[h]
     \centering
-    \vspace{2.5cm}
     \caption{The four namespaces inside AGAS. Primary namespace on each AGAS instance contains GID to local address mappings. Locality namespace holds information about all AGAS instances. Component namespace tracks bulk memory allocations dedicated to types. Symbolic namespace contains mappings between GIDs and special strings that can be used for various purposes such as facilitating the collection of data about application execution.}
-    \includegraphics[width=.77\textwidth,height=\textheight,keepaspectratio]{illustrations/agas_intern}
+    \includegraphics[width=.47\textwidth,height=\textheight,keepaspectratio]{illustrations/agas_intern}
     \label{fig:agas_intern}
 \end{figure}
 
@@ -116,13 +149,16 @@ Intel processors. HPX introduces a set of performance counters to let
 developers monitor the performance of its subsystems, including AGAS, during
 execution.
 
-Similar to hardware performance counters, HPX performance counters are designed
-to expose performance data on the underlying function calls and their durations.
+Similar to hardware performance counters, HPX performance counters\cite{grubel2015performance} are designed
+to expose performance data on the underlying function calls. HPX has
+performance counters that measure performance of AGAS subsystems. Each AGAS
+performance counter either reports the number of invocations or the total
+execution time of the selected operation.
 
 \subsection{HPX bootstrap and teardown}
 Before an HPX application can start executing, HPX has to initialize. This
 process is called bootstrap and includes registering runtime services, data
-types, performance counters\cite{grubel2015performance}, and symbols.
+types, performance counters, and symbols.
 Similarly during teardown, after applications built with HPX complete, HPX removes all
 objects, frees all allocated hardware resources and may perform additional
 tasks such as collecting performance counter data when applicable.

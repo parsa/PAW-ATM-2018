@@ -1,13 +1,17 @@
 \section{Quantifying AGAS Performance}
 \label{performance}
 
-The main objective of any HPC memory addressing system, including AGAS, is to
-handle massive amount of data that is used by applications that use it.
-In HPX this task is performed by AGAS. To study AGAS, we use OctoTiger\cite{kadam2017numerical,octotiger_repo} as our application and run it on the cluster
-provided by the Center of Computation and Technology at Louisiana State
-University. In the rest of this section we discuss the applications
-we use to benchmark AGAS and the performance metrics that we use judge AGAS
-based on.
+The main challenge of any HPC global addressing system, including AGAS, is to
+efficiently support the massive amounts of data tha applications use during
+execution. Our aim here, therefore, is to understand the efficiency of AGAS
+through measuring its performance of associated overheads.
+To study AGAS, we use OctoTiger\cite{kadam2017numerical,octotiger_repo} as our
+application and run it on the cluster provided by the Center of Computation and
+Technology at Louisiana State University. In the rest of this section we
+present OctoTiger and the performance metrics we use to measure the overheads
+of AGAS. It has to be noted that any other application benchmark can be used in
+place of OctoTiger. However, developing an HPX implementation takes work and at
+this point, OctoTiger is the only available real world HPX application.
 
 \subsection{OctoTiger}
 %\todo[inline, color=red!50]{What is it? Why did we choose it? What are the implications of this choice?}%
@@ -16,7 +20,10 @@ simulates the merger of double white dwarf binaries. Its computations include
 hydrodynamics, gravitational, and radiation transportation solvers. It fully
 utilizes the capabilities of AGAS in HPX since it dynamically changes the
 computational resolution based on the actual needs of the simulation and thus, 
-it is an inherently balance impaired application.
+it is an inherently balance impaired application. It is also a memory intensive
+application compared to most exascale challenge problems. For example,
+Quicksilver and Pennant from CORAL2 benchmarks have a high water mark of 16\%
+and 8\%, respectively, whereas for OctoTiger this number is about 60\%.
 
 We use OctoTiger to study the behavior of AGAS when used by applications
 running on large machines. We ran our experiments on SuperMIC at Louisiana
@@ -33,7 +40,7 @@ comprises 360 compute nodes located at Louisiana State University. More
 details about the configuration of SuperMIC is included in Table
 \ref{tab:machines}. We run OctoTiger on SuperMIC from
 two nodes to 200 nodes only using the Xeon processors on each machine using
-HPX 0.99\cite{hartmut_kaiser_2015_33656}.
+HPX 0.9\cite{hartmut_kaiser_2015_33656}.
 
 % Sample LLNCS table
 %\begin{table}
@@ -75,7 +82,8 @@ HPX 0.99\cite{hartmut_kaiser_2015_33656}.
     \end{tabular}
 \end{table*}
 
-\subsection{Performance Metrics}
+\begin{itemize}
+\item{Performance Metrics}:
 Every globally accessible object in HPX has a global id that AGAS manages and
 resolves to local virtual addresses at runtime. However, address resolution at runtime is
 an overhead that consumes computational resources that application developers expect to be used by the
@@ -83,38 +91,39 @@ applications rather than the runtime system. To quantify and study the overhead 
 fundamental operations, the number of calls, and the amount of time that is
 spent performing these operations.
 
-\subsubsection{Bind, Unbind, Object Lookup}
+\item{Bind, Unbind, Object Lookup}:
 Bind and Unbind operations occur when a global object is created and deleted, 
 respectively. An object lookup operation takes place each time AGAS attempts 
 to resolve a global Id.
 
-\subsubsection{Locality Lookup}
+\item{Locality Lookup}:
 Each AGAS instance only knows about itself and locality 0. When an AGAS
 instance needs to communicate with another locality and does not have
-information about the appropriate communication endpoint to do so it needs to
+information about the appropriate communication endpoint to do so, it needs to
 query that information from locality 0.
 
-\subsubsection{Parcel Routing}
-HPX implements active messages in the form of parcels. A parcel is packaged
+\item{Parcel Routing}:
+HPX implements active messages in the form of parcels\cite{wagle2018methodology}. A parcel is packaged
 information that triggers an operation upon reception by an AGAS instance. For
 example, when an HPX task needs to operate on information that resides on
 another locality, AGAS serializes the task along with its arguments and state
 information and forwards it to the locality on which data resides.
 
-\subsubsection{Cache}
+\item{Cache}:
 Whenever AGAS decides that an address is likely to be queried again, it stores
 that information in the local AGAS cache of that locality. To serve its purpose of actually improving
 performance the AGAS cache is designed to hold a limited number of entries that is
 defined by user configuration.
 
-\subsubsection{Garbage Collection}
+\item{Garbage Collection}:
 \label{sec:garbage_collection}
 HPX provides managed objects whose lifetime is controlled by the garbage
 collection mechanism instead of the programmer having to free the memory
 consumed by each object. HPX uses reference counting to track references local
 to each AGAS instance and a credit scheme to manage global references. Once an
 object no longer has any local references and/or all its global reference
-credits are returned it is deemed garbage and is collected when the garbage
+credits are returned, it is deemed garbage and is collected when the garbage
 collection operation is triggered by reaching a certain threshold or by the
-application developer. Registration and removal of global references is done by
-calling increment\_credit and decrement\_credit functions, respectively.
+application developer in their code. Registration and removal of global references is done by
+calling \textit{increment\_credit} and \textit{decrement\_credit} functions, respectively.
+\end{itemize}
