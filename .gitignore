@@ -1,0 +1,48 @@
+# Word
+~$*.doc*
+
+# Excel
+~$*.xls*
+*.xlk
+
+# PowerPoint
+~$*.ppt*
+
+# Visio
+*.~vsdx
+
+*.tmp
+
+# IPython
+.ipynb_checkpoints
+
+# Vim
+*.swp
+
+# Python
+__pycache__
+
+# TeX
+*.aux
+*.glo
+*.idx
+*.log
+*.toc
+*.ist
+*.acn
+*.acr
+*.alg
+*.bbl
+*.blg
+*.dvi
+*.glg
+*.gls
+*.ilg
+*.ind
+*.lof
+*.lot
+*.maf
+*.mtc
+*.mtc1
+*.out
+*.synctex.gz

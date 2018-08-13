@@ -1,0 +1,120 @@
+\section{Quantifying AGAS Performance}
+\label{performance}
+
+The main objective of any HPC memory addressing system, including AGAS, is to
+handle massive amount of data that is used by applications that use it.
+In HPX this task is performed by AGAS. To study AGAS, we use OctoTiger\cite{kadam2017numerical,octotiger_repo} as our application and run it on the cluster
+provided by the Center of Computation and Technology at Louisiana State
+University. In the rest of this section we discuss the applications
+we use to benchmark AGAS and the performance metrics that we use judge AGAS
+based on.
+
+\subsection{OctoTiger}
+%\todo[inline, color=red!50]{What is it? Why did we choose it? What are the implications of this choice?}%
+LSU OctoTiger is a state of the art multi-physics AMR HPX application that
+simulates the merger of double white dwarf binaries. Its computations include
+hydrodynamics, gravitational, and radiation transportation solvers. It fully
+utilizes the capabilities of AGAS in HPX since it dynamically changes the
+computational resolution based on the actual needs of the simulation and thus, 
+it is an inherently balance impaired application.
+
+We use OctoTiger to study the behavior of AGAS when used by applications
+running on large machines. We ran our experiments on SuperMIC at Louisiana
+State University, a hybrid cluster composed of Xeon, Xeon Phi Knights Corner, 
+and NVIDIA Tesla processors. Due to the complexity of the computations
+performed by OctoTiger, adjusting the size of the problem with reasonable
+accuracy to demonstrate weak scaling is not practical and therefore we
+presenting the impacts of strong scaling on AGAS behavior.
+
+\subsection{System and Environment Setup}
+%\todo[inline, color=red!50]{Where are the experiments run? Why? What are the implications of this choice?}%
+We run our experiments on SuperMIC, a hybrid Xeon/Xeon Phi cluster that
+comprises 360 compute nodes located at Louisiana State University. More
+details about the configuration of SuperMIC is included in Table
+\ref{tab:machines}. We run OctoTiger on SuperMIC from
+two nodes to 200 nodes only using the Xeon processors on each machine using
+HPX 0.99\cite{hartmut_kaiser_2015_33656}.
+
+% Sample LLNCS table
+%\begin{table}
+%    \caption{SuperMIC Configuration}
+%    \label{tab:machines}
+%    \begin{center}
+%    \begin{tabular}{r@{\quad}rl}
+%    \hline
+%    \multicolumn{1}{l}{\rule{0pt}{12pt}
+%                       Year}&\multicolumn{2}{l}{World population}\\[2pt]
+%    \hline\rule{0pt}{12pt}
+%    8000 B.C.  &     5,000,000& \\
+%      50 A.D.  &   200,000,000& \\
+%    1650 A.D.  &   500,000,000& \\
+%    1945 A.D.  & 2,300,000,000& \\
+%    1980 A.D.  & 4,400,000,000& \\[2pt]
+%    \hline
+%    \end{tabular}
+%    \end{center}
+%\end{table}
+
+\begin{table*}
+  \centering
+  \caption{SuperMIC Configuration}
+  \label{tab:machines}
+    \begin{tabular}{cl}  
+    \toprule
+    Nodes available  & 360                             \\
+    Architecture     & Ivy Bridge,                     \\
+                     & Knights Corner                  \\
+    Cores/Node       & $2 \times 10$ cores             \\
+    Processor        & Intel Xeon E5-2680 @ 2.8 GHz,   \\
+                     & Intel Xeon Phi 7120P @1.238 GHz \\
+    Memory           & 64 GB DDR3 @ 1,866 MHz          \\
+                     &                                 \\
+    Connection       & 56 Gbps Infinitband             \\
+    Operating System & Red Hat Enterprise Linux 6.8    \\
+    \bottomrule
+    \end{tabular}
+\end{table*}
+
+\subsection{Performance Metrics}
+Every globally accessible object in HPX has a global id that AGAS manages and
+resolves to local virtual addresses at runtime. However, address resolution at runtime is
+an overhead that consumes computational resources that application developers expect to be used by the
+applications rather than the runtime system. To quantify and study the overhead of AGAS, we look at the following
+fundamental operations, the number of calls, and the amount of time that is
+spent performing these operations.
+
+\subsubsection{Bind, Unbind, Object Lookup}
+Bind and Unbind operations occur when a global object is created and deleted, 
+respectively. An object lookup operation takes place each time AGAS attempts 
+to resolve a global Id.
+
+\subsubsection{Locality Lookup}
+Each AGAS instance only knows about itself and locality 0. When an AGAS
+instance needs to communicate with another locality and does not have
+information about the appropriate communication endpoint to do so it needs to
+query that information from locality 0.
+
+\subsubsection{Parcel Routing}
+HPX implements active messages in the form of parcels. A parcel is packaged
+information that triggers an operation upon reception by an AGAS instance. For
+example, when an HPX task needs to operate on information that resides on
+another locality, AGAS serializes the task along with its arguments and state
+information and forwards it to the locality on which data resides.
+
+\subsubsection{Cache}
+Whenever AGAS decides that an address is likely to be queried again, it stores
+that information in the local AGAS cache of that locality. To serve its purpose of actually improving
+performance the AGAS cache is designed to hold a limited number of entries that is
+defined by user configuration.
+
+\subsubsection{Garbage Collection}
+\label{sec:garbage_collection}
+HPX provides managed objects whose lifetime is controlled by the garbage
+collection mechanism instead of the programmer having to free the memory
+consumed by each object. HPX uses reference counting to track references local
+to each AGAS instance and a credit scheme to manage global references. Once an
+object no longer has any local references and/or all its global reference
+credits are returned it is deemed garbage and is collected when the garbage
+collection operation is triggered by reaching a certain threshold or by the
+application developer. Registration and removal of global references is done by
+calling increment\_credit and decrement\_credit functions, respectively.

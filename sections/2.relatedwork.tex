@@ -1,0 +1,24 @@
+\section{Related Work}
+\label{related_work}
+
+In recent years, there has been a significant increase in utilization of
+heterogeneous clusters that use GPUs and MICs in addition to
+CPUs\cite{Lena2014,Yang2011266,Potluri2014,Sidelnik2011}. One approach to
+manage such systems is using
+solutions\cite{Rabenseifner2009,Yang2011266,Chorley2010} that separately use a
+library like MPI for explicit communication between nodes and a choice of
+shared-memory programming framework such as OpenMP\cite{openmp_org}, Kokkos\cite{kokkos_paper,kokkos_repo}, or
+UPC\cite{upc_org}. Other approaches include Asynchronous PGAS
+runtimes\cite{Saraswat2010} and Charm++\cite{charm_edu} that use dynamic
+multithreading to avoid fragmenting the application development process to
+separately manage communication and computation while maintaining portability
+between various cluster configurations and providing access to heterogeneous
+computing resources\cite{P0234R0}.
+
+Most studies on distributed runtime systems do not include quantitative
+analysis of the performance of their global address space system but present
+the overall performance of applications using the respective model or
+implementation. However, amongst the runtime systems mentioned only HPX has a
+ubiquitous address system that is present during run time. This unique property
+calls for a closer look into HPX's Active Global Address Space system behavior
+and performance and is the motivation behind this study.

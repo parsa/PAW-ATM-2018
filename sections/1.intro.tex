@@ -1,0 +1,47 @@
+\section{Introduction}
+Global address space systems attempt to boost productivity and simplify the
+application development cycle of distributed applications by providing a
+ubiquitous abstraction layer over memory spaces that are provided and managed
+by the operating system on each computer. SPMD-style (Single Program Multiple
+Data) Partitioned Global Address Space designs eliminate this layer during
+compilation to avoid the complexity of resolving global addresses at runtime at
+the cost of limiting productivity and imposing limitations on the code, while
+others like HPX\cite{Kaiser2014,hpx_repo}, HPX5\cite{hpx5},
+Charm++\cite{Kale1993}, UPC++\cite{Zheng2014}, and Chapel\cite{chapel_lang} provide a
+runtime component that maps global addresses to virtual addresses during
+application execution to provide true global addresses.
+
+
+The demand for models that enable applications to process massive
+datasets within specific time, power, and budgetary constraints continues to
+pose challenges for the computer science community
+\cite{Amarasinghe091exascale,Sterling2009}. One category of such complexities
+includes managing a large quantity of objects across several machines and
+memory partitions while maximizing data locality. Several Partitioned Global
+Address Space systems (PGAS) \cite{pgasorg} try to address these needs by
+providing control over data distribution and facilitating data accesses across
+processes and machines. However, initial data placement alone is not sufficient
+to address more complex issues such as load balancing applications that run on heterogeneous clusters or applications
+that become scaling impaired over time due to increasing load imbalance such
+as adaptive mesh refinement (AMR), dynamic graph applications, and partial
+differential equation (PDE) solvers\cite{5364511,Anderson2011a,Dekate2011}.
+Active Global Address Space (AGAS) is a system that tries to address
+performance impaired applications. AGAS was initially proposed for the ParalleX
+programming model\cite{5364511} and implemented in HPX. It adds an abstraction
+layer on top of local objects on each computing node by mapping local virtual
+addresses to a global address and ensuring that global addresses are valid even
+if the object it refers to is migrated to a different physical location. This
+abstraction layer needs to execute code to resolve and maintain the references
+and takes a portion of the execution time.
+
+
+Assessing the overheads caused by AGAS is the main objective of this paper. We
+address this objective by developing a system that uses measurement data from
+AGAS and applies it to identify AGAS functions that exhibit poor scaling
+behavior in HPX 0.9. In the rest of this work, we discuss other pertinent
+research in section \ref{related_work}, present a general overview of AGAS
+functionality in section \ref{agas}, explain the criteria based on which the
+results can be evaluated in section \ref{performance}, experiments that were
+run and examine their results in section \ref{results}, and further analyze
+them and consider directions that are likely to produce more insights into
+improving AGAS considering our findings in section \ref{conclusions}.
