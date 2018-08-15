@@ -41,6 +41,11 @@ of the locality namespace to each locality's AGAS cache in the current version
 of HPX is one such optimization that reduces traffic forwarding to locality 0
 due to not knowing the endpoint address for a locality.
 
-Finally, we observe that in total AGAS operations cause an average of 0.0036\%
-of overhead. This is hardly a performance issue and indicates that using AGAS
-is a relatively inexpensive choice for the boost in productivity it provides.
+The most important feature of AGAS is that it allows applications to
+dynamically perform data load balancing at runtime without stopping the
+execution and it also works with other components of HPX to deliver a
+distributed asynchronous multithreaded system. We observe that in total AGAS
+operations cause an average of 0.0036\% of overhead. This is hardly a
+performance issue and indicates that using AGAS is a relatively inexpensive
+choice for the boost in productivity it provides.
+

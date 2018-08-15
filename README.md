@@ -22,7 +22,7 @@ Introduces AGAS and demonstrates a method to evaluate its performance.
 
 ## What is the *current* status of this paper?
 
-Work in progress.
+Submitted.
 
 # Outline
 

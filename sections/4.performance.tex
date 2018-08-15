@@ -41,7 +41,7 @@ comprises 360 compute nodes located at Louisiana State University. More
 details about the configuration of SuperMIC is included in Table
 \ref{tab:machines}. We run OctoTiger on SuperMIC from
 two nodes to 194 nodes only using the Xeon processors on each machine using
-HPX 0.9\cite{hartmut_kaiser_2015_33656}.
+HPX 0.99\cite{hartmut_kaiser_2015_33656}. The software configuration is listed in Table  \ref{tab:software-used}
 
 % Sample LLNCS table
 %\begin{table}
@@ -79,6 +79,21 @@ HPX 0.9\cite{hartmut_kaiser_2015_33656}.
                          &                                 \\
         Connection       & 56 Gbps Infinitband             \\
         Operating System & Red Hat Enterprise Linux 6.8    \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\begin{table}
+    \caption{Software used in the experiment}
+    \centering
+    \label{tab:software-used}
+    \begin{tabular}{cl}  
+        \toprule
+        Compiler         & GCC 4.9.0                       \\
+        MPI              & MVAPICH 2.0                     \\
+        Boost            & 1.61.0                          \\
+        hwloc            & 1.10                            \\
+        HPX              & 0.99                            \\
         \bottomrule
     \end{tabular}
 \end{table}

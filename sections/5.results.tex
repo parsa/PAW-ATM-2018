@@ -1,6 +1,22 @@
 \section{Performance Results}
 \label{results}
 
+\begin{table*}[t]
+    \caption{AGAS overhead in total and for the most expensive AGAS operations as percentages of execution time for 4 node configurations.}
+    \centering
+    \label{tab:exec-percent}
+    \begin{tabular}{ccccc}
+        \toprule
+        Number of localities & All AGAS operations in total & Decrement credit operations & Resolve GID operations & Parcel routing operations \\
+        \hline
+        2   & 0.0031 & 0.0016 & 0.0009 & 0.0001 \\
+        16  & 0.0031 & 0.0015 & 0.0011 & 0.0001 \\
+        88  & 0.0032 & 0.0015 & 0.0010 & 0.0003 \\
+        194 & 0.0051 & 0.0017 & 0.0011 & 0.0020 \\
+        \bottomrule
+    \end{tabular}
+\end{table*}
+
 As mentioned before, the main objective of this study is to identify the AGAS
 operations that need performance improvement and to study the effects of strong
 scaling on AGAS. In this section, we present the results of this study.
@@ -38,10 +54,10 @@ distribution, or HPX itself.
 Parcels are the basic communication block in HPX. Parcels are active messages
 that trigger an operation on the target AGAS instance that opens them and
 usually contains a serialized task and its arguments. Parcel routing is the
-operation in which the a parcel is sent to a different locality. Fig.
+operation in which a parcel is sent to a different locality. We expect that localities exchange a similar amount of parcels and thus, spend a similar amount of time. Fig.
 \ref{fig:octgr_strong_route_time} shows that locality 0 ends up handling a
 disproportionate and increasing number of routing requests regardless of the
-change in data access pattern and size due to scaling. Therfore, the routing
+change in data access pattern and size due to scaling. Therefore, the routing
 operation is a candidate for optimization.
 
 \begin{figure}[t]
@@ -65,13 +81,13 @@ credit and increment credit, respectively.
 %garbage collection.  Despite this limitation, the large number of nodes and the
 %limited usage of the operation still enables us to observe the changes in
 %decrement credit's behavior as the number of nodes increase.
-Fig \ref{fig:octgr_strong_decr_cred} depicts the behavior of decrement\_credit
+Fig \ref{fig:octgr_strong_decr_cred} depicts the behavior of \textit{decrement\_credit}
 calls that take place while running OctoTiger with the same number of objects as
 the number of nodes are increased. This figure shows that a
 linear increase in number of objects results in an exponential growth
 in the amount of time spent on managing global references. Although this
 behavior is likely to be different for applications that do not have as many
-global references per each object and therefore decrement\_credit is a good
+global references per each object and therefore \textit{decrement\_credit} is a good
 candidate for further optimizations.
 
 \begin{figure}[t]
@@ -89,22 +105,6 @@ collect execution times for all runs and incidentally collected these
 values, but we nevertheless expect the values to be similar for other node
 configurations that are not in the table. Based on these values we observe that
 AGAS takes only a small amount of execution time.
-
-\begin{table*}[t]
-    \caption{AGAS overhead in total and for the most expensive AGAS operations as percentages of execution time for 4 node configurations.}
-    \centering
-    \label{tab:exec-percent}
-    \begin{tabular}{ccccc}
-        \toprule
-        Number of localities & All AGAS operations in total & Decrement credit operations & Resolve GID operations & Parcel routing operations \\
-        \hline
-        2   & 0.0031 & 0.0016 & 0.0009 & 0.0001 \\
-        16  & 0.0031 & 0.0015 & 0.0011 & 0.0001 \\
-        88  & 0.0032 & 0.0015 & 0.0010 & 0.0003 \\
-        194 & 0.0051 & 0.0017 & 0.0011 & 0.0020 \\
-        \bottomrule
-    \end{tabular}
-\end{table*}
 
 %\begin{figure}
 %    \begin{subfigure}[b]{0.3\textwidth}

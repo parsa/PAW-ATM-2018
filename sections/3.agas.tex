@@ -12,21 +12,23 @@ specific memory configuration characteristics are handled by the programmer
 through the API. Fig.
 \ref{fig:agas_struct} illustrates AGAS's role in HPX. Typically, 
 each part of the distributed AGAS service is hosted on a separate node of a
-cluster. AGAS consists of several subsystems that are depicted in Fig.
+cluster.
+
+AGAS consists of several subsystems that are depicted in Fig.
 \ref{fig:agas_intern} and are the following:
 
-\begin{figure}[t]
+\begin{figure*}[t]
     \centering
-    \includegraphics[width=.49\textwidth,height=\textheight,keepaspectratio]{illustrations/agas_struct}
+    \includegraphics[width=.9\textwidth,height=\textheight,keepaspectratio]{illustrations/agas_struct}
     \caption{AGAS provides an abstraction layer on top of virtual addresses local to each locality. Global objects are shown as black stars and gray stars indicate references to global objects. Each reference is connected to global objects by an arrow.}
     \label{fig:agas_struct}
-\end{figure}
-\begin{figure}[t]
+\end{figure*}
+\begin{figure*}[t]
     \centering
-    \includegraphics[width=.49\textwidth,height=\textheight,keepaspectratio]{illustrations/agas_interaction}
+    \includegraphics[width=.9\textwidth,height=\textheight,keepaspectratio]{illustrations/agas_interaction}
     \caption{When an HPX thread accesses a global object, AGAS determines if the object can be accessed locally. If the object is on a different locality the HPX thread is serialized and given to the parcelport. The parcelport unserializes the task and hands it to the thread manager for execution.}
     \label{fig:agas_interaction}
-\end{figure}
+\end{figure*}
 
 %\begin{figure*}[t!]
 %    \centering
@@ -134,12 +136,12 @@ cluster. AGAS consists of several subsystems that are depicted in Fig.
         \end{figure*}
 \end{enumerate}
 
-\begin{figure}[t]
+\begin{figure*}[t]
     \centering
-    \includegraphics[width=.47\textwidth,height=\textheight,keepaspectratio]{illustrations/agas_intern}
+    \includegraphics[width=.9\textwidth,height=\textheight,keepaspectratio]{illustrations/agas_intern}
     \caption{The four namespaces inside AGAS. Primary namespace on each AGAS instance contains GID to local address mappings. Locality namespace holds information about all AGAS instances. Component namespace tracks bulk memory allocations dedicated to types. Symbolic namespace contains mappings between GIDs and special strings that can be used for various purposes such as facilitating the collection of data about application execution.}
     \label{fig:agas_intern}
-\end{figure}
+\end{figure*}
 
 Garbage collection at runtime requires execution of code that is otherwise not
 present and consumes computing resources. Performing garbage collection
@@ -148,19 +150,45 @@ minimize garbage collection sweeps by performing it when the volume of garbage
 reaches a certain threshold that can be specified by the users. It is also
 possible to manually initiate it inside applications by developers.
 
+When the code accesses the object referred to by a GID, AGAS looks up the GID
+in the primary namespace and returns the local virtual address for the object
+if the object lives on the same locality. As for remote objects, AGAS interacts
+with the parcelport service to resolve the remote reference access as shown in
+Fig. \ref{fig:agas_interaction}. This design hides the communication latencies
+by resolving the remote reference accesses asynchronously.
+
 \subsection{AGAS Performance Counters}
 HPX is a runtime system that includes novel abstractions on top of ordinary
 operating systems and hardware that are more difficult to benchmark using traditional
 performance measuring tools such as hardware performance counters included in
 Intel processors. HPX introduces a set of performance counters to let
 developers monitor the performance of its subsystems, including AGAS, during
-execution.
+execution. This allows the users to use performance counters to debug their
+code and locate performance bottlenecks. Users can also develop their own
+performance counters to retrieve arbitrary information during execution.
+
+Performance counters can be queried at runtime. For example, APEX\cite{JSFI64}
+uses data provided by the performance counter system at runtime to make
+decisions in its policy engine to perform autotuning on the running HPX
+application and improve execution time. It is also possible to ask HPX to print
+the performance counter data.
 
 Similar to hardware performance counters, HPX performance counters\cite{grubel2015performance} are designed
 to expose performance data on the underlying function calls. HPX has
 performance counters that measure performance of AGAS subsystems. Each AGAS
 performance counter either reports the number of invocations or the total
 execution time of the selected operation.
+
+\subsection{Migration}
+Objects registered in AGAS can be physically moved to a different locality
+while retaining the same address. Moreover, this operation does not need the
+application execution to be suspended. After a global object is relocated to
+the new locality, all reference accesses that try to access the object are
+forwarded to the new locality and their localities are notified of the move.
+
+Migration is an especially useful feature for applications that suffer from
+poor data locality and/or are balance impaired and it can be used to adaptively
+improve data locality when scaling is being hurt.
 
 \subsection{HPX bootstrap and teardown}
 Before an HPX application can start executing, HPX has to initialize. This
