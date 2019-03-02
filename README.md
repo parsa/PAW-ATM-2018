@@ -9,8 +9,8 @@ Introduces AGAS and demonstrates a method to evaluate its performance.
 ## Where is it supposed to be published and why?
 
 * SC18 - PAW-ATM: Parallel Applications Workshop - Alternatives to MPI
-    * https://sc18.supercomputing.org/presentation/?id=wksp108&sess=sess144
-    * http://sourceryinstitute.github.io/PAW/
+    * <https://sc18.supercomputing.org/presentation/?id=wksp108&sess=sess144>
+    * <http://sourceryinstitute.github.io/PAW/>
 * Reason: This paper presents performance. Suggestions are welcome.
 
 ## What is/are the experiments, what data is collected, what information is presented?
@@ -22,7 +22,7 @@ Introduces AGAS and demonstrates a method to evaluate its performance.
 
 ## What is the *current* status of this paper?
 
-Submitted.
+Submitted. Rejected.
 
 # Outline
 
@@ -47,10 +47,10 @@ Submitted.
 # Notes
 
 * PAW-ATM 2018 requires 10pt fonts in [IEEE format](https://www.ieee.org/conferences/publishing/templates.html)
-    * LLNCS's LaTeX2e template: ftp://ftp.springernature.com/cs-proceeding/llncs/llncs2e.zip
+    * LLNCS's LaTeX2e template: <ftp://ftp.springernature.com/cs-proceeding/llncs/llncs2e.zip>
 * Submission link: 
-    * https://submissions.supercomputing.org/ (Linklings)
+    * <https://submissions.supercomputing.org/> (Linklings)
 
 ***
 
-PDF link: https://github.com/STEllAR-GROUP/documents/blob/master/papers/PAW-ATM2018/main.pdf
+PDF link: <https://github.com/STEllAR-GROUP/documents/blob/master/papers/PAW-ATM2018/main.pdf>
